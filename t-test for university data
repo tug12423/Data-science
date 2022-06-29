@@ -1,0 +1,53 @@
+import pandas as pd
+import re
+import pandas as pd
+import pandas as pd
+import re
+import pandas as pd
+from scipy.stats import ttest_ind
+from scipy import stats
+def df():
+    df = pd.read_excel('gdplev.xls',header=None,skiprows=8,parse_cols = range(0, 7),names=['a','b','c','d','e','f','g'])
+    df=df.drop(['d'],axis=1)
+    df=df.loc(axis=1)['e','g']
+    #df=df.set_index('e')
+    df=df.loc['212':]
+    #df=df.set_index('e')
+    #if df[e].iloc[n]<df[e].iloc[n+1] & df[e].iloc[n+1]<df[e].iloc[n+2]:
+    df['difference']=df['g'].diff() 
+    df=df.dropna()
+    return df
+df()
+    #return df['difference'].iloc[n]
+def get_quarter_before_recession() :
+    df1=df()
+    for n in range(0,len(df1)-4):
+        if (df1.iloc[n,2] < 0) and (df1.iloc[n+1,2] < 0) :
+            return df1.iloc[n-1,0]
+get_quarter_before_recession() 
+def run_ttest():
+    housing = convert_housing_data_to_quarters()
+    university_towns_raw = get_list_of_university_towns()
+    university_towns=university_towns_raw.set_index(['State','RegionName'])
+    recession_start=get_recession_start()
+    quarter_before_recession = get_quarter_before_recession()    
+    recession_bottom = get_recession_bottom()
+    housing = housing[[quarter_before_recession, recession_bottom]]
+    housing["price_ratio"] = (housing[quarter_before_recession]).div(housing[recession_bottom])
+    #housing = housing.dropna()
+    university_housing = pd.merge(university_towns, housing, how = "inner",left_index = True, right_index = True)
+    non_university_housing = housing[~housing.index.isin(university_housing.index)]
+    t_stat,p=ttest_ind(university_housing['price_ratio'],non_university_housing['price_ratio'],nan_policy='omit')
+    if p < 0.01:
+        different = True
+    else:
+        different = False
+    if t_stat < 0:
+        better = "university town"
+    else:
+        better = "non-university town"
+    return (different, p, better)
+    #return (non_university_housing)
+    
+run_ttest()
+
