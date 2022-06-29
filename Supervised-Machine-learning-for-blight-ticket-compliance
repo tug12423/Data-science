@@ -1,0 +1,48 @@
+import pandas as pd
+import numpy as np
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import roc_curve, auc
+from sklearn.ensemble import GradientBoostingClassifier
+import matplotlib.pyplot as plt
+
+def blight_model():
+    df_train=pd.read_csv('train.csv',encoding = 'ISO-8859-1',low_memory=False)
+    df_test=pd.read_csv('readonly/test.csv',encoding = 'ISO-8859-1',low_memory=False)
+    df_train.columns
+    df_train=df_train[['ticket_id','compliance','judgment_amount','payment_amount','balance_due']].dropna(axis=0)
+    #df_train=df_train.set_index('ticket_id')
+    X=df_train[['ticket_id','judgment_amount']]
+    y=df_train[['compliance']]
+    X_try=df_test[['ticket_id','judgment_amount']]
+    #y=df_train[['compliance']]
+    X_train, X_test, y_train, y_test = train_test_split(X,y, random_state=0)
+    probability=pd.DataFrame(X_test['ticket_id'])
+    probability_final=pd.DataFrame(X_try['ticket_id'])
+    lr=GradientBoostingClassifier(learning_rate=0.09, max_depth=3).fit(X_train, y_train)
+    #lr = SVC(kernel = 'rbf', gamma=0.1).fit(X_train, y_train)
+    #lr = LogisticRegression(random_state=0,multi_class='multinomial',penalty='l2',solver='sag',tol=1e-6, max_iter=int(1e6),warm_start=True).fit(X_train, y_train)
+    y_proba_lr = lr.predict_proba(X_test)
+    y_proba_final=lr.predict_proba(X_try)
+    columns_new = ['one', 'probable']
+    prob=pd.DataFrame(y_proba_lr, columns=columns_new)
+    prob_final=pd.DataFrame(y_proba_final, columns=columns_new)
+    probability['probability']=prob['probable'].values
+    probability_final['probability']=prob_final['probable'].values
+    y_score_lr = lr.fit(X_train, y_train).decision_function(X_test)
+    y_score_final=lr.fit(X_train, y_train).decision_function(X_try)
+    fpr_lr, tpr_lr, _ = roc_curve(y_test, y_score_lr)
+    plt
+    roc_auc_lr = auc(fpr_lr, tpr_lr)
+    probability=probability.set_index('ticket_id')
+    probability_final=probability_final.set_index('ticket_id')
+    #print(roc_auc_lr)
+    plt.plot(fpr_lr, tpr_lr, 'b', label = 'AUC = %0.2f' % roc_auc_lr)
+    plt.legend(loc = 'lower right')
+    plt.ylabel('True Positive Rate')
+    plt.xlabel('False Positive Rate')
+    plt.show()
+    return probability_final
+blight_model()
