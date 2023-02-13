@@ -28,3 +28,28 @@ The code is a Python script that implements a supervised machine learning algori
 * Returns the final test set probabilities data frame.
 
 * The code also includes a plot of the ROC curve, but it will only be shown if the function is run in an interactive environment (e.g., Jupyter Notebook).
+
+# t-test for university data
+## Introduction
+This repository contains code to perform t-tests for university data.
+
+## Usage
+The code is written in Python, and uses the following libraries:
+
+pandas
+re
+scipy
+Code Overview
+The code has several functions to process and analyze university data. Below is a brief description of each function:
+
+* df: Reads the data from an Excel file (gdplev.xls) and processes it to create a dataframe with columns e and g.
+* get_recession_end: Returns the end of the recession in the data.
+* get_recession_start: Returns the start of the recession in the data.
+* get_recession_bottom: Returns the bottom of the recession in the data.
+* convert_housing_data_to_quarters: Reads housing data from a CSV file (City_Zhvi_AllHomes.csv) and converts it to quarters.
+* run_ttest: Performs a t-test on the given data.
+Data
+The code uses two data files:
+
+* gdplev.xls: Contains GDP data for the US.
+* City_Zhvi_AllHomes.csv: Contains housing data for US cities.
